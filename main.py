@@ -135,7 +135,7 @@ class StupidClass(QtCore.QObject):
 		#	print r
 		#	print roster[r]
 		#	#print roster[r]['status']
-		#rkeys = [str(r) for r in roster.keys()]
+		rkeys = [str(r) for r in roster.keys()]
 		#print "rkclass", rkeys.__class__.__name__
 		#print "rkclass", rkeys[0].__class__.__name__
 		return QVariant(rkeys)
