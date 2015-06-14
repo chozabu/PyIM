@@ -28,8 +28,8 @@ html = """
 	clist = document.getElementById("clist")
 	output = document.getElementById("output")
 	intext = document.getElementById("intext")
-	login.value="username"
-	pass.value="password"
+	login.value="first.last"
+	pass.value="pass"
 	function addchat(author, text){
 		output.innerHTML+="<br>";
 		output.innerHTML+=author;
@@ -75,7 +75,7 @@ class StupidClass(QtCore.QObject):
 		# Connect it to ml
 		timer.timeout.connect(self.ml)
 		# Call f() every 2 seconds
-		timer.start(2000)
+		timer.start(500)
 		self.t = timer
 		print "usndfsndffdn"
 		#self.minit("asdadnj")
@@ -112,20 +112,10 @@ class StupidClass(QtCore.QObject):
 		print "NICK", nick
 		text=mess.getBody()
 		print "TEXT", text
-		print "DATA", mess.getData()
-		print "DATA", mess.getType()
-		print "DATA", mess.getPayload()
-		print "DATA", mess.getSubject()
-		print "DATA", mess.getAttrs()
-		print "DATA", mess.getCDATA()
-		print "DATA", mess.getChildren()
-		print "DATA", mess.getParent()
-		print dir(mess)
+		#print dir(mess)
 		try:
-			self.mainframe.evaluateJavaScript("addchat('asd','qwe');")
-			self.mainframe.evaluateJavaScript("addchat('"+"123"+"','"+"123"+"');")
-			self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+"notext"+"');")
-			self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"');")
+			#self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"');")
+			self.mainframe.evaluateJavaScript("alert('"+text+"');")
 		except:
 			pass
 	@QtCore.pyqtSlot(str, str)  
@@ -145,9 +135,9 @@ class StupidClass(QtCore.QObject):
 		#	print r
 		#	print roster[r]
 		#	#print roster[r]['status']
-		rkeys = [str(r) for r in roster.keys()]
-		print "rkclass", rkeys.__class__.__name__
-		print "rkclass", rkeys[0].__class__.__name__
+		#rkeys = [str(r) for r in roster.keys()]
+		#print "rkclass", rkeys.__class__.__name__
+		#print "rkclass", rkeys[0].__class__.__name__
 		return QVariant(rkeys)
 		
 	@QtCore.pyqtSlot(str)  
