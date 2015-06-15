@@ -70,7 +70,7 @@ html = """
 """  
 	
 class QtJsBridge(QtCore.QObject):  
-	"""Simple class with one slot and one read-only property."""  
+	"""connection between QT and Webkit."""  
 	
 	def minit(self):
 		timer = QTimer()
@@ -102,6 +102,7 @@ class QtJsBridge(QtCore.QObject):
 		#client.RegisterHandler('chat', self.gotmsg)
 		client.sendInitPresence()
 		self.client = client
+		#QTimer.singleShot(1000, self.getRoster)
 	def gotmsg(self,sess,mess):
 		print 'MESSAGE'*10
 		print "MESS", mess
