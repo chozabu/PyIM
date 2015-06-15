@@ -30,8 +30,8 @@ html = """
 	clist = document.getElementById("clist")
 	output = document.getElementById("output")
 	intext = document.getElementById("intext")
-	login.value="first.last"
-	pass.value="pass"
+	login.value="username"
+	pass.value="password"
 	function addchat(author, text){
 		output.innerHTML+="<br>";
 		output.innerHTML+=author;
