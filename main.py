@@ -12,9 +12,14 @@ html = """
 	<script language="JavaScript"> 
 	document.write('<p>Python ' + pyObj.pyVersion + '</p>') 
 	</script> 
+	<input name="server" type="text" maxlength="512" id="server" class="server"/>
+	<input name="port" type="number" maxlength="512" id="port" class="port"/>
+	<br>
 	<input name="login" type="text" maxlength="512" id="login" class="login"/>
+	@
+	<input name="login2" type="text" maxlength="512" id="login2" class="login2"/>
 	<input name="pass" type="text" maxlength="512" id="pass" class="pass"/>
-	<button onClick="pyObj.uplink(login.value, pass.value)">Login</button> 
+	<button onClick="pyObj.uplink(login.value, pass.value, login2.value, server.value, port.value)">Login</button> 
 	<button onClick="getRoster()">contacts</button> 
 	<div id="contacts">
 	</div>
@@ -24,14 +29,21 @@ html = """
 	<div id="output">
 	</div>
 	<script>
+	<!-- getElementById stuff not all needed? -->
 	login = document.getElementById('login')
+	login2 = document.getElementById('login2')
 	pass = document.getElementById('pass')
+	server = document.getElementById('server')
+	port = document.getElementById('port')
 	contacts = document.getElementById("contacts")
 	clist = document.getElementById("clist")
 	output = document.getElementById("output")
 	intext = document.getElementById("intext")
 	login.value="username"
+	login2.value="gmail.com"
 	pass.value="password"
+	port.value=5223
+	server.value="talk.google.com"
 	function addchat(author, text){
 		output.innerHTML+="<br>";
 		output.innerHTML+=author;
@@ -92,11 +104,14 @@ class QtJsBridge(QtCore.QObject):
 	def _pyVersion(self):  
 		"""Return the Python version."""  
 		return sys.version  
-	@QtCore.pyqtSlot(str, str)  
-	def uplink(self, username, passwd):
+	@QtCore.pyqtSlot(str, str, str, str, int)  
+	def uplink(self, username, passwd, login2, server, port):
 		print username, passwd
-		client = xmpp.Client('gmail.com')
-		client.connect(server=('talk.google.com',5223))
+		print login2
+		print server
+		print port
+		client = xmpp.Client(login2)
+		client.connect(server=(server,int(port)))
 		client.auth(username, passwd, 'botty')
 		client.RegisterHandler('message', self.gotmsg)
 		#client.RegisterHandler('chat', self.gotmsg)
