@@ -2,6 +2,8 @@ import sys
 from PyQt4 import QtCore, QtGui, QtWebKit
 from PyQt4.QtCore import QVariant, QTimer
 import xmpp
+from PyQt4.QtWebKit import QWebSettings
+	
 	
 """Html snippet."""  
 html = """ 
@@ -149,6 +151,7 @@ class StupidClass(QtCore.QObject):
 	
 def main():  
 	app = QtGui.QApplication(sys.argv)  
+	QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True);
 	
 	myObj = StupidClass()  
 	myObj.minit()
