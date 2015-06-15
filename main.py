@@ -10,17 +10,11 @@ html = """
 <html><body> 
 	<center> 
 	<script language="JavaScript"> 
-	document.write('<p>Python ' + pyObj.pyVersion + '</p>') 
+	//document.write('<p>Python ' + pyObj.pyVersion + '</p>') 
+	
 	</script> 
-	<input name="server" type="text" maxlength="512" id="server" class="server"/>
-	<input name="port" type="number" maxlength="512" id="port" class="port"/>
-	<br>
-	<input name="login" type="text" maxlength="512" id="login" class="login"/>
-	@
-	<input name="login2" type="text" maxlength="512" id="login2" class="login2"/>
-	<input name="pass" type="text" maxlength="512" id="pass" class="pass"/>
-	<button onClick="pyObj.uplink(login.value, pass.value, login2.value, server.value, port.value)">Login</button> 
-	<button onClick="getRoster()">contacts</button> 
+
+
 	<div id="contacts">
 	</div>
 	<select name="clist" id="clist">
@@ -29,21 +23,14 @@ html = """
 	<div id="output">
 	</div>
 	<script>
-	<!-- getElementById stuff not all needed? -->
-	login = document.getElementById('login')
-	login2 = document.getElementById('login2')
-	pass = document.getElementById('pass')
-	server = document.getElementById('server')
-	port = document.getElementById('port')
+
+
+
 	contacts = document.getElementById("contacts")
 	clist = document.getElementById("clist")
 	output = document.getElementById("output")
 	intext = document.getElementById("intext")
-	login.value="username"
-	login2.value="gmail.com"
-	pass.value="password"
-	port.value=5223
-	server.value="talk.google.com"
+
 	function addchat(author, text){
 		output.innerHTML+="<br>";
 		output.innerHTML+=author;
@@ -74,6 +61,7 @@ html = """
 			option.text = roster[i];
 			clist.appendChild(option);
 		}
+	setInterval(getRoster,800);
 		
 		//contacts.innerHTML
 	}
@@ -107,22 +95,11 @@ class QtJsBridge(QtCore.QObject):
 	def _pyVersion(self):  
 		"""Return the Python version."""  
 		return sys.version  
-	@QtCore.pyqtSlot(str, str, str, str, int)  
-	def uplink(self, username, passwd, login2, server, port):
-		print username, passwd
-		print login2
-		print server
-		print port
-		client = xmpp.Client(login2)
-		client.connect(server=(server,int(port)))
-		client.auth(username, passwd, 'botty')
-		client.RegisterHandler('message', self.gotmsg)
-		#client.RegisterHandler('chat', self.gotmsg)
-		client.sendInitPresence()
-		self.client = client
-		#QTimer.singleShot(1000, self.getRoster)
+	@QtCore.pyqtSlot()  
+	def uplinkButton(self):#unused
+		self.mainframe.evaluateJavaScript("")
+		pass
 		
-		self.mainframe.evaluateJavaScript("getRoster();")
 	def gotmsg(self,sess,mess):
 		print 'MESSAGE'*3
 		print "MESS", mess
@@ -155,15 +132,15 @@ class QtJsBridge(QtCore.QObject):
 	@QtCore.pyqtSlot(result=QVariant)  
 	def getRoster(self):
 		print "getting roster"
-		roster =  self.client.getRoster()
+		
 		#for r in roster.keys():
 		#	print r
 		#	print roster[r]
 		#	#print roster[r]['status']
-		rkeys = [str(r) for r in roster.keys()]
+		
 		#print "rkclass", rkeys.__class__.__name__
 		#print "rkclass", rkeys[0].__class__.__name__
-		return QVariant(rkeys)
+		return QVariant(self.rkeys)
 		
 	@QtCore.pyqtSlot(str)  
 	def printit(self, out):
@@ -173,6 +150,10 @@ class QtJsBridge(QtCore.QObject):
 	pyVersion = QtCore.pyqtProperty(str, fget=_pyVersion)  
 	
 def main():  
+	
+	
+
+
 	app = QtGui.QApplication(sys.argv)  
 	QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True);
 	
@@ -188,6 +169,29 @@ def main():
 	window = QtGui.QMainWindow()  
 	window.setCentralWidget(webView)  
 	window.show()  
+	
+	server = 'talk.google.com'
+	login2 = 'gmail.com'
+	port = '5223'
+	username = 'luke.stanley'
+	passwd = 'tsushkwpcsqnntia'
+	print username, passwd
+	print login2
+	print server
+	print port
+	client = xmpp.Client(login2)
+	client.connect(server=(server,int(port)))
+	client.auth(username, passwd, 'botty')
+	
+	
+	client.RegisterHandler('message', myObj.gotmsg)
+	#client.RegisterHandler('chat', self.gotmsg)
+	client.sendInitPresence()
+	#self.client = client
+	myObj.client = client
+	roster =  client.getRoster()
+	QTimer.singleShot(1000, client.getRoster)
+	myObj.rkeys = [str(r) for r in roster.keys()]
 	
 	sys.exit(app.exec_())  
 	
