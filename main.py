@@ -74,20 +74,15 @@ class QtJsBridge(QtCore.QObject):
 	
 	def minit(self):
 		timer = QTimer()
-		# Connect it to ml
-		timer.timeout.connect(self.ml)
-		# Call f() every 2 seconds
+		timer.timeout.connect(self.pTick)
 		timer.start(500)
 		self.t = timer
-		print "usndfsndffdn"
-		#self.minit("asdadnj")
-	def ml(self):
+	def pTick(self):
 		#self.mainframe.evaluateJavaScript("addchat('asd','qwe');")
-		#self.mainframe.evaluateJavaScript("alert('asdqwe');")
 		try:
 			self.client.Process(1)
 		except:
-			print "passsed"
+			print "unable to process incoming data(disconnected?)"
 	
 	@QtCore.pyqtSlot(str)  
 	def showMessage(self, msg):  
@@ -110,9 +105,9 @@ class QtJsBridge(QtCore.QObject):
 	def gotmsg(self,sess,mess):
 		print 'MESSAGE'*10
 		print "MESS", mess
-		nick=mess.getFrom()
+		nick=str(mess.getFrom())
 		print "NICK", nick
-		text=mess.getBody()
+		text=str(mess.getBody())
 		print "TEXT", text
 		#print dir(mess)
 		try:
