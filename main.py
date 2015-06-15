@@ -59,6 +59,9 @@ html = """
 	function getRoster(){
 		pyObj.printit("grc")
 		var roster = pyObj.getRoster()
+		loadRoster(roster);
+	}
+	function loadRoster(roster){
 		//contacts.innerHTML = roster;
 		pyObj.printit("grc2")
 		pyObj.printit(roster[0])
@@ -118,6 +121,8 @@ class QtJsBridge(QtCore.QObject):
 		client.sendInitPresence()
 		self.client = client
 		#QTimer.singleShot(1000, self.getRoster)
+		
+		self.mainframe.evaluateJavaScript("getRoster();")
 	def gotmsg(self,sess,mess):
 		print 'MESSAGE'*3
 		print "MESS", mess
