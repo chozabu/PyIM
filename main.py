@@ -87,7 +87,7 @@ class QtJsBridge(QtCore.QObject):
 	def minit(self):
 		timer = QTimer()
 		timer.timeout.connect(self.pTick)
-		timer.start(500)
+		timer.start(1000)
 		self.t = timer
 	def pTick(self):
 		#self.mainframe.evaluateJavaScript("addchat('asd','qwe');")
@@ -119,18 +119,25 @@ class QtJsBridge(QtCore.QObject):
 		self.client = client
 		#QTimer.singleShot(1000, self.getRoster)
 	def gotmsg(self,sess,mess):
-		print 'MESSAGE'*10
+		print 'MESSAGE'*3
 		print "MESS", mess
 		nick=str(mess.getFrom())
 		print "NICK", nick
 		text=str(mess.getBody())
+		print text.__class__.__name__
+		if text == None or text == "None":
+			print "blank message, ignoring"
+			return
 		print "TEXT", text
 		#print dir(mess)
 		try:
-			#self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"');")
-			self.mainframe.evaluateJavaScript("alert('"+text+"');")
+			self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"');")
 		except:
-			pass
+			print "could not issue message"
+		#try:
+		#	self.mainframe.evaluateJavaScript("alert('"+text+"');")
+		#except:
+		#	print "could not issue alert"
 	@QtCore.pyqtSlot(str, str)  
 	def sendMessage(self, to, message):
 		to=str(to)
