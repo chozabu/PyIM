@@ -69,7 +69,7 @@ html = """
 </body></html> 
 """  
 	
-class StupidClass(QtCore.QObject):  
+class QtJsBridge(QtCore.QObject):  
 	"""Simple class with one slot and one read-only property."""  
 	
 	def minit(self):
@@ -153,7 +153,7 @@ def main():
 	app = QtGui.QApplication(sys.argv)  
 	QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True);
 	
-	myObj = StupidClass()  
+	myObj = QtJsBridge()  
 	myObj.minit()
 	
 	webView = QtWebKit.QWebView()  
