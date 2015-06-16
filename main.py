@@ -1,20 +1,15 @@
 import sys  
 from PyQt4 import QtCore, QtGui, QtWebKit
-from PyQt4.QtCore import QVariant, QTimer
+from PyQt4.QtCore import QVariant, QTimer, QThread
 import xmpp
 from PyQt4.QtWebKit import QWebSettings
+import time
 	
 	
 """Html snippet."""  
 html = """ 
 <html><body> 
 	<center> 
-	<script language="JavaScript"> 
-	//document.write('<p>Python ' + pyObj.pyVersion + '</p>') 
-	
-	</script> 
-
-
 	<div id="contacts">
 	</div>
 	<select name="clist" id="clist">
@@ -23,8 +18,6 @@ html = """
 	<div id="output">
 	</div>
 	<script>
-
-
 
 	contacts = document.getElementById("contacts")
 	clist = document.getElementById("clist")
@@ -61,10 +54,9 @@ html = """
 			option.text = roster[i];
 			clist.appendChild(option);
 		}
-	setInterval(getRoster,800);
-		
 		//contacts.innerHTML
 	}
+
 	</script>
 	<button onClick="sendMessage()">Send</button> 
 	<button onClick="pyObj.showMessage('Hello from WebKit')">Press me</button> 
@@ -78,14 +70,12 @@ class QtJsBridge(QtCore.QObject):
 	def minit(self):
 		timer = QTimer()
 		timer.timeout.connect(self.pTick)
-		timer.start(1000)
+		timer.start(300)
 		self.t = timer
+	hasTicked = False
 	def pTick(self):
 		#self.mainframe.evaluateJavaScript("addchat('asd','qwe');")
-		try:
-			self.client.Process(1)
-		except:
-			print "unable to process incoming data(disconnected?)"
+		pass
 	
 	@QtCore.pyqtSlot(str)  
 	def showMessage(self, msg):  
@@ -150,10 +140,6 @@ class QtJsBridge(QtCore.QObject):
 	pyVersion = QtCore.pyqtProperty(str, fget=_pyVersion)  
 	
 def main():  
-	
-	
-
-
 	app = QtGui.QApplication(sys.argv)  
 	QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True);
 	
@@ -174,7 +160,7 @@ def main():
 	login2 = 'gmail.com'
 	port = '5223'
 	username = 'luke.stanley'
-	passwd = 'tsushkwpcsqnntia'
+	passwd = open('pass.txt').read().strip()
 	print username, passwd
 	print login2
 	print server
@@ -187,11 +173,29 @@ def main():
 	client.RegisterHandler('message', myObj.gotmsg)
 	#client.RegisterHandler('chat', self.gotmsg)
 	client.sendInitPresence()
-	#self.client = client
-	myObj.client = client
+		  
+	class WorkThread(QtCore.QThread):
+		def __init__(self):
+			QtCore.QThread.__init__(self)
+			self.client = client
+
+		def __del__(self):
+			self.wait()
+
+		def run(self):
+			while True:
+				time.sleep(0.1) # artificial time delay
+				#print 3
+				self.client.Process()
+       
 	roster =  client.getRoster()
-	QTimer.singleShot(1000, client.getRoster)
 	myObj.rkeys = [str(r) for r in roster.keys()]
+	
+	myObj.mainframe.evaluateJavaScript("getRoster();")
+	
+	thread = WorkThread()
+	thread.finished.connect(app.exit)
+	thread.start()
 	
 	sys.exit(app.exec_())  
 	
