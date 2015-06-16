@@ -34,7 +34,7 @@ html = """
 		pyObj.printit(clist.value);
 		pyObj.printit(intext.value);
 		pyObj.sendMessage(clist.value, intext.value);
-		addchat("me", intext.value);
+		//addchat("me", intext.value);
 	}
 	function getRoster(){
 		pyObj.printit("grc")
@@ -86,11 +86,15 @@ class QtJsBridge(QtCore.QObject):
 		nick=str(mess.getFrom())
 		print "NICK", nick
 		text=str(mess.getBody())
+		print "TEXT", text
 		print text.__class__.__name__
 		if text == None or text == "None":
 			print "blank message, ignoring"
 			return
-		print "TEXT", text
+		self.printMsg(nick, text)
+		
+	@QtCore.pyqtSlot(str, str)  
+	def printMsg(self, nick, text):
 		someTermNumbers = sorted(extractor(text))
 		print someTermNumbers
 		someTerms = []
@@ -106,6 +110,7 @@ class QtJsBridge(QtCore.QObject):
 		#	print "could not issue message"
 	@QtCore.pyqtSlot(str, str)  
 	def sendMessage(self, to, message):
+		self.printMsg("me", str(message))
 		to=str(to)
 		message=str(message)
 		print "sending: ", message, " to ", to
