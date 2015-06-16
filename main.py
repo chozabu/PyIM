@@ -118,7 +118,7 @@ class QtJsBridge(QtCore.QObject):
 		print "sending: ", message, " to ", to
 		message = xmpp.Message(to, message)
 		message.setAttr('type', 'chat')
-		self.client.send(message)
+		self.send(message)
 		
 	@QtCore.pyqtSlot(result=QVariant)  
 	def getRoster(self):
@@ -183,7 +183,7 @@ def main():
 	roster =  client.getRoster()
 	myObj.rkeys = [str(r) for r in roster.keys()]
 	
-	#myObj.client = client
+	myObj.send = client.send
 	myObj.mainframe.evaluateJavaScript("getRoster();")
 	
 	thread = WorkThread()
