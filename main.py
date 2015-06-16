@@ -5,6 +5,8 @@ import xmpp
 from PyQt4.QtWebKit import QWebSettings
 import time
 import json
+from topia.termextract import extract
+extractor = extract.TermExtractor()
 	
 	
 """Html snippet."""  
@@ -25,11 +27,8 @@ html = """
 	output = document.getElementById("output")
 	intext = document.getElementById("intext")
 
-	function addchat(author, text){
-		output.innerHTML+="<br>";
-		output.innerHTML+=author;
-		output.innerHTML+=": ";
-		output.innerHTML+=text;
+	function addchat(author, text, terms){
+		output.innerHTML+="<br>"+author+": "+text;
 	}
 	function sendMessage(){
 		pyObj.printit(clist.value);
@@ -92,10 +91,19 @@ class QtJsBridge(QtCore.QObject):
 			print "blank message, ignoring"
 			return
 		print "TEXT", text
-		try:
-			self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"');")
-		except:
-			print "could not issue message"
+		someTermNumbers = sorted(extractor(text))
+		print someTermNumbers
+		someTerms = []
+		for term in someTermNumbers:
+			someTerms.append(term[0])
+			text = text.replace(term[0],'<b>'+term[0]+'</b>')
+		someTerms = json.dumps(someTerms)
+		print someTerms
+		
+		#try:
+		self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"')")
+		#except:
+		#	print "could not issue message"
 	@QtCore.pyqtSlot(str, str)  
 	def sendMessage(self, to, message):
 		to=str(to)
