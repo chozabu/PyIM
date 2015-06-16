@@ -68,16 +68,6 @@ html = """
 class QtJsBridge(QtCore.QObject):  
 	"""connection between QT and Webkit."""  
 	
-	def minit(self):
-		timer = QTimer()
-		timer.timeout.connect(self.pTick)
-		timer.start(300)
-		self.t = timer
-	hasTicked = False
-	def pTick(self):
-		#self.mainframe.evaluateJavaScript("addchat('asd','qwe');")
-		pass
-	
 	@QtCore.pyqtSlot(str)  
 	def showMessage(self, msg):  
 		"""Open a message box and display the specified message."""  
@@ -102,15 +92,10 @@ class QtJsBridge(QtCore.QObject):
 			print "blank message, ignoring"
 			return
 		print "TEXT", text
-		#print dir(mess)
 		try:
 			self.mainframe.evaluateJavaScript("addchat('"+nick+"','"+text+"');")
 		except:
 			print "could not issue message"
-		#try:
-		#	self.mainframe.evaluateJavaScript("alert('"+text+"');")
-		#except:
-		#	print "could not issue alert"
 	@QtCore.pyqtSlot(str, str)  
 	def sendMessage(self, to, message):
 		to=str(to)
@@ -123,14 +108,6 @@ class QtJsBridge(QtCore.QObject):
 	@QtCore.pyqtSlot(result=QVariant)  
 	def getRoster(self):
 		print "getting roster"
-		
-		#for r in roster.keys():
-		#	print r
-		#	print roster[r]
-		#	#print roster[r]['status']
-		
-		#print "rkclass", rkeys.__class__.__name__
-		#print "rkclass", rkeys[0].__class__.__name__
 		return QVariant(self.rkeys)
 		
 	@QtCore.pyqtSlot(str)  
@@ -144,12 +121,11 @@ def main():
 	app = QtGui.QApplication(sys.argv)  
 	QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True);
 	
-	myObj = QtJsBridge()  
-	myObj.minit()
+	myObj = QtJsBridge()
 	
 	webView = QtWebKit.QWebView()  
-	# Make myObj exposed as JavaScript object named 'pyObj'  
-	webView.page().mainFrame().addToJavaScriptWindowObject("pyObj", myObj)  
+	# Make myObj exposed as JavaScript object named 'pyObj'
+	webView.page().mainFrame().addToJavaScriptWindowObject("pyObj", myObj)
 	myObj.mainframe=webView.page().mainFrame()
 	webView.setHtml(html)  
 	
@@ -166,7 +142,8 @@ def main():
 	client.RegisterHandler('message', myObj.gotmsg)
 	#client.RegisterHandler('chat', self.gotmsg)
 	client.sendInitPresence()
-		  
+	
+	#thread gets incoming messages
 	class WorkThread(QtCore.QThread):
 		def __init__(self):
 			QtCore.QThread.__init__(self)
@@ -177,12 +154,14 @@ def main():
 
 		def run(self):
 			while True:
-				time.sleep(0.1) # artificial time delay
+				time.sleep(0.1)
 				self.client.Process()
-       
+
+	#need to call this later on too.
 	roster =  client.getRoster()
 	myObj.rkeys = [str(r) for r in roster.keys()]
 	
+	#give js obj access to send. could wrap in another method if paranoid :P
 	myObj.send = client.send
 	myObj.mainframe.evaluateJavaScript("getRoster();")
 	
