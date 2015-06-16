@@ -117,6 +117,9 @@ class QtJsBridge(QtCore.QObject):
 	"""Python interpreter version property."""  
 	pyVersion = QtCore.pyqtProperty(str, fget=_pyVersion)  
 	
+import select
+
+	
 def main():  
 	app = QtGui.QApplication(sys.argv)  
 	QWebSettings.globalSettings().setAttribute(QWebSettings.DeveloperExtrasEnabled, True);
@@ -143,20 +146,6 @@ def main():
 	#client.RegisterHandler('chat', self.gotmsg)
 	client.sendInitPresence()
 	
-	#thread gets incoming messages
-	class WorkThread(QtCore.QThread):
-		def __init__(self):
-			QtCore.QThread.__init__(self)
-			self.client = client
-
-		def __del__(self):
-			self.wait()
-
-		def run(self):
-			while True:
-				time.sleep(0.1)
-				self.client.Process()
-
 	#need to call this later on too.
 	roster =  client.getRoster()
 	myObj.rkeys = [str(r) for r in roster.keys()]
@@ -165,9 +154,25 @@ def main():
 	myObj.send = client.send
 	myObj.mainframe.evaluateJavaScript("getRoster();")
 	
-	thread = WorkThread()
-	thread.finished.connect(app.exit)
-	thread.start()
+	#this get messages section could be improved, or replaced!
+	global cancheckmsgs
+	cancheckmsgs = True
+	def checkmsgs():
+		global cancheckmsgs
+		if not cancheckmsgs: return
+		cancheckmsgs = False
+		socketlist = {client.Connection._sock:'xmpp',sys.stdin:'stdio'}
+		
+		(i , o, e) = select.select(socketlist.keys(),[],[],.01)
+		for each in i:
+			print each
+			if socketlist[each] == 'xmpp':
+				client.Process(.01)
+		cancheckmsgs = True
+	
+	timer = QTimer()
+	timer.timeout.connect(checkmsgs)
+	timer.start(100)
 	
 	sys.exit(app.exec_())  
 	
