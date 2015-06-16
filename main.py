@@ -4,6 +4,7 @@ from PyQt4.QtCore import QVariant, QTimer, QThread
 import xmpp
 from PyQt4.QtWebKit import QWebSettings
 import time
+import json
 	
 	
 """Html snippet."""  
@@ -156,18 +157,10 @@ def main():
 	window.setCentralWidget(webView)  
 	window.show()  
 	
-	server = 'talk.google.com'
-	login2 = 'gmail.com'
-	port = '5223'
-	username = 'luke.stanley'
-	passwd = open('pass.txt').read().strip()
-	print username, passwd
-	print login2
-	print server
-	print port
-	client = xmpp.Client(login2)
-	client.connect(server=(server,int(port)))
-	client.auth(username, passwd, 'botty')
+	cf = json.load(open('config.json'))
+	client = xmpp.Client(cf['login2'])
+	client.connect(server=(cf['server'],int(cf['port'])))
+	client.auth(cf['username'], cf['passwd'], 'botty')
 	
 	
 	client.RegisterHandler('message', myObj.gotmsg)
@@ -185,12 +178,12 @@ def main():
 		def run(self):
 			while True:
 				time.sleep(0.1) # artificial time delay
-				#print 3
 				self.client.Process()
        
 	roster =  client.getRoster()
 	myObj.rkeys = [str(r) for r in roster.keys()]
 	
+	#myObj.client = client
 	myObj.mainframe.evaluateJavaScript("getRoster();")
 	
 	thread = WorkThread()
